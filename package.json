@@ -1,0 +1,19 @@
+{
+	"name": "app-hooks",
+	"description": "App hooks",
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"express": "4.10.x",
+		"mongodb": "1.2.x",
+		"mongoose": "3.8.x",
+		"async": "0.9.x",
+		"node-gcm": "latest",
+		"crypto": "latest",
+		"jade": "latest",
+		"apn": "latest",
+		"body-parser": "latest",
+		"morgan": "1.4.x",
+		"moment": "2.x"
+	}
+}
