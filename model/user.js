@@ -9,12 +9,6 @@ var UserSchema = mongoose.Schema({
 	apiSecret: String
 });
 
-var UserTokenSchema = mongoose.Schema({
-	user: { type: String, ref: 'User' },
-	token: String,
-	expiration: Number
-});
-
 UserSchema.set('toJSON', {
 	transform: function(doc, ret, options) {
 		delete ret.__v;
@@ -23,14 +17,8 @@ UserSchema.set('toJSON', {
 });
 
 var User = mongoose.model('User', UserSchema);
-var UserToken = mongoose.model('UserToken', UserTokenSchema);
 
 exports.getUserModel = function()
 {
 	return User;
-}
-
-exports.getUserTokenModel = function()
-{
-	return UserToken;
 }

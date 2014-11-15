@@ -1,4 +1,5 @@
 var errors = require('../docs/errors.js')
+	, session = require('express-session')
 	, database = require('./database.js')
 	, routes = require('./routes.js')
 	, constants = require('./constants.js')
@@ -8,7 +9,6 @@ var errors = require('../docs/errors.js')
 	, morgan = require('morgan');
 
 var User = userModel.getUserModel();
-var UserToken = userModel.getUserTokenModel();
 
 /**
  * Get current timestamp
@@ -67,6 +67,7 @@ exports.configure = function(app, express)
 
 	// Used for form/data and x-www-form-urlencoded content types.
 	app.use(bodyParser.urlencoded({ extended: true }));
+	app.use(session({ secret: 'app-hooks-web', cookie: { maxAge: 600000 }}));
 }
 
 /**
@@ -107,44 +108,13 @@ exports.errorHandler = errorHandler;
  */
 exports.isAuthenticated = function(req, res, next)
 {
-	var reqToken = req.header('X-AUTH-TOKEN');
-	var reqEmail = req.header('X-AUTH-EMAIL');
-
-	if(reqToken	=== undefined
-	|| reqEmail === undefined)
+	if(req.session.user)
 	{
-		errorHandler(res, 100, 401);
+		req.user = req.session.user;
+		next();
 	}
 	else
 	{
-		reqEmail = reqEmail.toLowerCase();
-
-		UserToken
-		.findOne({
-			$and: [
-				{ token : reqToken },
-				{ expiration : { $gte : timestamp() } }
-			]
-		})
-		.populate('user')
-		.exec(function(err, userToken)
-		{
-			if(userToken == null)
-			{
-				errorHandler(res, 100, 401);
-			}
-			else
-			{
-				if(userToken.user.email != reqEmail)
-				{
-					errorHandler(res, 100, 401);
-				}
-				else
-				{
-					req.user = userToken.user;
-					next();
-				}
-			}
-		});
+		errorHandler(res, 100, 401);
 	}
 }

@@ -1,11 +1,16 @@
 var user = require('../controller/user.js')
 	, device = require('../controller/device.js')
+	, page = require('../controller/page.js')
 	, general = require('./general.js');
 
 exports.init = function(app)
 {
-	app.get('/', function(req, res) { res.render('index'); });
+	app.get('/', function(req, res) { res.redirect('/web') });
+	app.get('/web', page.index);
+	app.get('/web/user', page.user);
+
 	app.get('/user', general.isAuthenticated, user.get);
+	app.get('/user/logout', general.isAuthenticated, user.logout);
 	app.get('/device/:id', general.isAuthenticated, device.get);
 
 	app.post('/user', user.new);

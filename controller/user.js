@@ -5,7 +5,6 @@ var async = require('async')
 	, userModel = require('../model/user.js');
 
 var User = userModel.getUserModel();
-var UserToken = userModel.getUserTokenModel();
 
 /**
  * Get current timestamp
@@ -40,6 +39,7 @@ exports.get = function(req, res)
  */
 exports.new = function(req, res)
 {
+	var html = req.query.html;
 	var body = req.body;
 
 	var response = {};
@@ -125,13 +125,27 @@ exports.new = function(req, res)
 		if(!invalid)
 			response = user;
 
-		if(status != 200)
+		if(!html)
 		{
-			general.errorHandler(res, response.code, status);
+			if(status != 200)
+			{
+				general.errorHandler(res, response.code, status);
+			}
+			else
+			{
+				res.status(status).send(response);
+			}
 		}
 		else
 		{
-			res.status(status).send(response);
+			if(status != 200)
+			{
+				res.redirect('/web?message=Check+the+fields.');
+			}
+			else
+			{
+				res.redirect('/web?message=Success,+you+may+now+login.');
+			}
 		}
 	});
 }
@@ -141,18 +155,18 @@ exports.new = function(req, res)
  *
  * @param body.email The user email.
  * @param body.password The user password.
- * @param (opt) body.longExp If it should expire after a long time.
  *
  * @return UserToken The JSON representation of the userToken.
  */
 exports.auth = function(req, res)
 {
+	var html = req.query.html;
 	var body = req.body;
 
 	var response = {};
 	var status = 200;
 
-	var user, userToken, longExp = false;
+	var user;
 	
 	async.series([
 
@@ -167,11 +181,6 @@ exports.auth = function(req, res)
 			}
 			else
 			{
-				if(body.longExp !== undefined)
-				{
-					longExp = true;
-				}
-
 				body.email = body.email.toLowerCase();
 				callback();
 			}
@@ -202,86 +211,48 @@ exports.auth = function(req, res)
 				else
 				{
 					user = retData;
+					req.session.user = user;
+
 					callback();
-				}
-			});
-		},
-		function(callback)
-		{
-			var expiration = moment();
-
-			if(!longExp)
-			{
-				expiration.add(1, 'days');
-			}
-			else
-			{
-				expiration.add(1, 'years');
-			}
-
-			var token = crypto.createHmac('sha1', body.email);
-				token.update(expiration.format('X'));
-				token.update(timestamp());
-
-			token = token.digest('hex');
-
-			userToken = new UserToken({
-				user: user._id,
-				token: token,
-				expiration: expiration.format('X')
-			});
-
-			userToken.save(function(err, retData)
-			{
-				if(err)
-				{
-					console.log(err);
-					response.code = 999;
-					status = 500;
-					callback(true);
-				}
-				else
-				{
-					userToken = retData;
-		
-					var options = [{
-						path: 'user',
-						model: 'User',
-						select: '-password -__v'
-					}];
-
-					UserToken
-					.populate(userToken, options, function(err, retData)
-					{
-						if(err)
-						{
-							console.log(err);
-							response.code = 999;
-							status = 500;
-							callback(true);
-						}
-						else
-						{
-							userToken = retData;
-
-							callback();
-						}
-					});
 				}
 			});
 		}
 	], function(invalid)
 	{
 		if(!invalid)
-			response = userToken;
+			response = user;
 
-		if(status != 200)
+		if(!html)
 		{
-			general.errorHandler(res, response.code, status);
+			if(status != 200)
+			{
+				general.errorHandler(res, response.code, status);
+			}
+			else
+			{
+				res.status(status).send(response);
+			}
 		}
 		else
 		{
-			res.status(status).send(response);
+			if(status != 200)
+			{
+				res.redirect('/web?message=User+not+found');
+			}
+			else
+			{
+				res.redirect('/web/user');
+			}
 		}
 	});
+}
+
+/**
+ * Unauth an User.
+ */
+exports.logout = function(req, res)
+{
+	req.session.user = undefined;
+
+	res.redirect('/web');
 }

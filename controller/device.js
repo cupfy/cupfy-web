@@ -28,7 +28,7 @@ var timestamp = function()
  */
 exports.get = function(req, res)
 {
-	var id = req.param.id;
+	var id = req.params.id;
 	var user = req.user;
 
 	var response = {};
@@ -84,7 +84,8 @@ exports.get = function(req, res)
  */
 exports.remove = function(req, res)
 {
-	var id = req.param.id;
+	var html = req.query.html;
+	var id = req.params.id;
 	var user = req.user;
 
 	var response = {};
@@ -135,13 +136,27 @@ exports.remove = function(req, res)
 		}
 	], function(invalid)
 	{
-		if(status != 200)
+		if(!html)
 		{
-			general.errorHandler(res, response.code, status);
+			if(status != 200)
+			{
+				general.errorHandler(res, response.code, status);
+			}
+			else
+			{
+				res.status(status).send(response);
+			}
 		}
 		else
 		{
-			res.status(status).send(response);
+			if(status != 200)
+			{
+				res.redirect('/web/user?message=Something+went+wrong.');
+			}
+			else
+			{
+				res.redirect('/web/user?message=Success.');
+			}
 		}
 	});
 }
@@ -271,14 +286,15 @@ exports.new = function(req, res)
  */
 exports.approve = function(req, res)
 {
-	var id = req.param.id;
+	var html = req.query.html;
+	var id = req.params.id;
 	var user = req.user;
 
 	var response = {};
 	var status = 200;
 
 	var device;
-	
+
 	async.series([
 
 		function(callback)
@@ -328,13 +344,27 @@ exports.approve = function(req, res)
 		if(!invalid)
 			response = device;
 
-		if(status != 200)
+		if(!html)
 		{
-			general.errorHandler(res, response.code, status);
+			if(status != 200)
+			{
+				general.errorHandler(res, response.code, status);
+			}
+			else
+			{
+				res.status(status).send(response);
+			}
 		}
 		else
 		{
-			res.status(status).send(response);
+			if(status != 200)
+			{
+				res.redirect('/web/user?message=Something+went+wrong.');
+			}
+			else
+			{
+				res.redirect('/web/user?message=Success.');
+			}
 		}
 	});
 }

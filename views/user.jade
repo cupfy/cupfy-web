@@ -1,0 +1,38 @@
+doctype html
+html
+	head
+		title App Hooks
+	body
+		h1= "Hello " + user.name
+		a(href="/user/logout") Logout
+
+		-if(message)
+			p=message
+		h3 Here is your information
+		p= "API Key: " + user.apiKey
+		p= "API Secret: " + user.apiSecret
+		
+		h3 Here is your devices
+		table(border="1")
+			thead
+				td ID
+				td Type
+				td Status
+			tbody
+				-for(var i in devices)
+					tr
+						td=devices[i].pushId
+						-if(devices[i].type == 0)
+							td Android
+						-else
+							td iOS
+						-if(devices[i].approved)
+							td True
+								form(action="/device/"+devices[i]._id+"/remove?html=true", method="post")
+									button Remove
+						-else
+							td False
+								form(action="/device/"+devices[i]._id+"/approve?html=true", method="post")
+									button Approve
+
+	script(src="/js/app-hooks.js")

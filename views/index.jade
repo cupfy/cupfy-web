@@ -3,4 +3,26 @@ html
 	head
 		title App Hooks
 	body
-		h1 Hello World
+		h1 App Hooks
+		-if(message)
+			p=message
+		form(action="/user/login?html=true", method="post")
+			fieldset
+				input(type="text" name="email" placeholder="Email address")
+			fieldset
+				input(type="password" name="password" placeholder="Password")
+			fieldset
+				button Login
+		p Don't have an account?
+
+		form(action="/user?html=true", method="post")
+			fieldset
+				input(type="text" name="name" placeholder="Your name")
+			fieldset
+				input(type="text" name="email" placeholder="Email address")
+			fieldset
+				input(type="password" name="password" placeholder="Password")
+			fieldset
+				button Register
+				
+	script(src="/js/app-hooks.js")
