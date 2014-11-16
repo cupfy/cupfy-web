@@ -101,7 +101,7 @@ exports.new = function(req, res)
 				name: body.name,
 				email: body.email,
 				password: password,
-				apiKey: password.slice(2, 7),
+				apiKey: password.slice(2, 12),
 				apiSecret: apiSecret
 			});
 

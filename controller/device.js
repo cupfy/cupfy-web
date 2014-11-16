@@ -20,29 +20,64 @@ var timestamp = function()
 }
 
 /**
- * Get an Device by it's id.
+ * Get an Device by it's pushId.
  *
- * @param id The device id.
+ * @param pushId The device pushId.
  *
  * @return Device The JSON representation of the device.
  */
 exports.get = function(req, res)
 {
-	var id = req.params.id;
-	var user = req.user;
+	var apiKey = req.params.apiKey;
+	var query = req.query;
 
 	var response = {};
 	var status = 200;
 
-	var device;
+	var device, user;
 	
 	async.series([
 
 		function(callback)
 		{
+			if(query.pushId === undefined)
+			{
+				response.code = 2;
+				status = 400;
+				callback(true);
+			}
+			else
+			{
+				callback();
+			}
+		},
+		function(callback)
+		{
+			User
+			.findOne({
+				apiKey : apiKey
+			})
+			.exec(function(err, retData)
+			{
+				if(retData == null)
+				{
+					response.code = 1;
+					status = 404;
+					callback(true);
+				}
+				else
+				{
+					user = retData;
+
+					callback();
+				}
+			});
+		},
+		function(callback)
+		{
 			Device
 			.findOne({
-				_id : id,
+				pushId : query.pushId,
 				user : user._id
 			})
 			.exec(function(err, retData)
