@@ -11,7 +11,7 @@ exports.init = function(app)
 
 	app.get('/user', general.isAuthenticated, user.get);
 	app.get('/user/logout', general.isAuthenticated, user.logout);
-	app.get('/device/:apiKey', device.get);
+	app.get('/device', device.get);
 
 	app.post('/user', user.new);
 	app.post('/user/login', user.auth);
