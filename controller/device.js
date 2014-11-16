@@ -409,7 +409,7 @@ exports.approve = function(req, res)
  *
  * @param body.title The push title.
  * @param body.message The push message.
- * @param body.apiKey The push apiKey.
+ * @param body.apiSecret The push apiSecret.
  */
 exports.push = function(req, res)
 {
@@ -427,7 +427,7 @@ exports.push = function(req, res)
 		{
 			if(body.title === undefined
 			|| body.message === undefined
-			|| body.apiKey === undefined)
+			|| body.apiSecret === undefined)
 			{
 				response.code = 2;
 				status = 400;
@@ -441,7 +441,7 @@ exports.push = function(req, res)
 		function(callback)
 		{
 			User
-			.findOne({ apiKey : body.apiKey })
+			.findOne({ apiSecret : body.apiSecret })
 			.lean()
 			.exec(function(err, retData)
 			{
