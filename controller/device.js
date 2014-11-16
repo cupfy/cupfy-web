@@ -486,11 +486,11 @@ exports.push = function(req, res)
 					{
 						if(retData[i].type == 0)
 						{
-							android.push(retData[i]);
+							android.push(retData[i].pushId);
 						}
 						else
 						{
-							ios.push(retData[i]);
+							ios.push(retData[i].pushId);
 						}
 					}
 
