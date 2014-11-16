@@ -1,21 +1,18 @@
 var gcm = require('node-gcm');
 var apn = require('apn');
+var constants = require('../config/constants.js');
 
 /*
  * APN
  */
-var options = {
-	cert: '/home/ec2-user/hey-socket-web/keys/ios/production/cert.pem',
-	key: '/home/ec2-user/hey-socket-web/keys/ios/production/key.pem',
-	passphrase: '<-JNr2K`K!E5R,['
-};
+var options = constants.getApnOptions();
 
 var apnConnection = new apn.Connection(options);
 
 /*
  * GCM
  */
-var sender = new gcm.Sender('AIzaSyCNQr_YdN1RajVH_30kqO9b-EIaI3aJCCo');
+var sender = new gcm.Sender(constants.getGcmApiSecret());
 
 exports.send = function(json, android, ios, callback)
 {
