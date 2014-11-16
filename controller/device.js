@@ -29,6 +29,7 @@ var timestamp = function()
 exports.get = function(req, res)
 {
 	var apiKey = req.params.apiKey;
+	var query = req.query;
 
 	var response = {};
 	var status = 200;
@@ -37,6 +38,19 @@ exports.get = function(req, res)
 	
 	async.series([
 
+		function(callback)
+		{
+			if(query.pushId === undefined)
+			{
+				response.code = 2;
+				status = 400;
+				callback(true);
+			}
+			else
+			{
+				callback();
+			}
+		},
 		function(callback)
 		{
 			Device
