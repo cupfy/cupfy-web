@@ -2,27 +2,39 @@ doctype html
 html
 	head
 		title App Hooks
-	body
-		h1 App Hooks
-		-if(message)
-			p=message
-		form(action="/user/login?html=true", method="post")
-			fieldset
-				input(type="text" name="email" placeholder="Email address")
-			fieldset
-				input(type="password" name="password" placeholder="Password")
-			fieldset
-				button Login
-		p Don't have an account?
+		link(rel="stylesheet", href="/css/app-hooks.css")
 
-		form(action="/user?html=true", method="post")
-			fieldset
-				input(type="text" name="name" placeholder="Your name")
-			fieldset
-				input(type="text" name="email" placeholder="Email address")
-			fieldset
-				input(type="password" name="password" placeholder="Password")
-			fieldset
-				button Register
-				
+	body
+		section.access
+			form(action="/user/login?html=true", method="post")
+				.close X
+				h1 Access
+				-if(message)
+					p.error=message
+					script window.onload = function() { ui.toggleAccess(); };
+
+				input(name="email", type="email", placeholder="Email address")
+				input(name="password", type="password", placeholder="Your password")
+				button Register or Login
+		header
+			button.access Login or Register
+			.brand
+			.title App Hooks
+			.message Send notifications to all registered devices
+				br
+				| with one request
+		.container
+			.how-it-works
+				h1 How it works
+				.content
+					.part.part-1
+						.pic
+						span Create your account to receive your API Key.
+					.part.part-2
+						.pic
+						span Download the Android application and setup the API Key.
+					.part.part-3
+						.pic
+						span Send a POST request with title, message and API Secret.
+	
 	script(src="/js/app-hooks.js")

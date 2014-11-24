@@ -31,13 +31,12 @@ exports.get = function(req, res)
 /**
  * Create an User.
  *
- * @param body.name The user name.
  * @param body.email The user email.
  * @param body.password The user password.
  *
  * @return User The JSON representation of the user.
  */
-exports.new = function(req, res)
+var newUser = function(req, res)
 {
 	var html = req.query.html;
 	var body = req.body;
@@ -51,8 +50,7 @@ exports.new = function(req, res)
 
 		function(callback)
 		{
-			if(body.name === undefined
-			|| body.email === undefined
+			if(body.email === undefined
 			|| body.password === undefined)
 			{
 				response.code = 2;
@@ -98,7 +96,6 @@ exports.new = function(req, res)
 			apiSecret = apiSecret.digest('hex');
 
 			user = new User({
-				name: body.name,
 				email: body.email,
 				password: password,
 				apiKey: password.slice(2, 12),
@@ -144,11 +141,14 @@ exports.new = function(req, res)
 			}
 			else
 			{
-				res.redirect('/web?message=Success,+you+may+now+login.');
+				auth(req, res);
+				return;
 			}
 		}
 	});
 }
+
+exports.new = newUser;
 
 /**
  * Auth an User.
@@ -158,7 +158,7 @@ exports.new = function(req, res)
  *
  * @return UserToken The JSON representation of the userToken.
  */
-exports.auth = function(req, res)
+var auth = function(req, res)
 {
 	var html = req.query.html;
 	var body = req.body;
@@ -167,13 +167,15 @@ exports.auth = function(req, res)
 	var status = 200;
 
 	var user;
-	
+	var userFound = false;
 	async.series([
 
 		function(callback)
 		{
 			if(body.email === undefined
-			|| body.password === undefined)
+			|| body.password === undefined
+			|| body.email == ""
+			|| body.password == "")
 			{
 				response.code = 2;
 				status = 400;
@@ -204,18 +206,45 @@ exports.auth = function(req, res)
 			{
 				if(retData == null)
 				{
-					response.code = 1;
-					status = 404;
-					callback(true);
+					callback();
 				}
 				else
 				{
 					user = retData;
 					req.session.user = user;
 
+					userFound = true;
+
 					callback();
 				}
 			});
+		},
+		function(callback)
+		{
+			if(!userFound)
+			{
+				User
+				.findOne({ email : body.email })
+				.lean()
+				.exec(function(err, retData)
+				{
+					if(retData == null)
+					{
+						newUser(req, res);
+						return;
+					}
+					else
+					{
+						response.code = 1;
+						status = 404;
+						callback(true);
+					}
+				});
+			}
+			else
+			{
+				callback();
+			}
 		}
 	], function(invalid)
 	{
@@ -237,7 +266,7 @@ exports.auth = function(req, res)
 		{
 			if(status != 200)
 			{
-				res.redirect('/web?message=User+not+found');
+				res.redirect('/web?message=Email+or+password+incorrect!');
 			}
 			else
 			{
@@ -246,6 +275,8 @@ exports.auth = function(req, res)
 		}
 	});
 }
+
+exports.auth = auth;
 
 /**
  * Unauth an User.
