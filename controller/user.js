@@ -45,6 +45,11 @@ var newUser = function(req, res)
 	var status = 200;
 
 	var user;
+
+	if(req.session.user) {
+		editUser(req, res);
+		return;
+	}
 	
 	async.series([
 
@@ -85,12 +90,12 @@ var newUser = function(req, res)
 		},
 		function(callback)
 		{
-			var password = crypto.createHmac('sha1', body.email);
+			var password = crypto.createHmac('sha256', body.email);
 				password.update(body.password);
 
 			password = password.digest('hex');
 
-			var apiSecret = crypto.createHmac('sha1', body.password);
+			var apiSecret = crypto.createHmac('sha256', body.password);
 				apiSecret.update(timestamp().toString());
 
 			apiSecret = apiSecret.digest('hex');
@@ -98,7 +103,7 @@ var newUser = function(req, res)
 			user = new User({
 				email: body.email,
 				password: password,
-				apiKey: password.slice(2, 12),
+				namespace: null,
 				apiSecret: apiSecret
 			});
 
@@ -137,7 +142,8 @@ var newUser = function(req, res)
 		{
 			if(status != 200)
 			{
-				res.redirect('/web?message=Check+the+fields.');
+				req.session.message = 'Check the fields!';
+				res.redirect('/web');
 			}
 			else
 			{
@@ -149,6 +155,147 @@ var newUser = function(req, res)
 }
 
 exports.new = newUser;
+
+/**
+ * Edit an User.
+ *
+ * @param body.email The user email.
+ * @param body.namespace The user namespace.
+ * @param body.password The user password.
+ *
+ * @return User The JSON representation of the user.
+ */
+var editUser = function(req, res)
+{
+	var html = req.query.html;
+	var body = req.body;
+
+	var response = {};
+	var status = 200;
+
+	var user = req.session.user;
+
+	// TODO: change this bullshit
+	var type = -1;
+	
+	async.series([
+
+		function(callback)
+		{
+			User
+			.findOne({
+				_id : user._id
+			})
+			.exec(function(err, retData)
+			{
+				if(retData == null)
+				{
+					console.log(err);
+					response.code = 999;
+					status = 500;
+					callback(true);
+				}
+				else
+				{
+					user = retData;
+					callback();
+				}
+			});
+		},
+		function(callback)
+		{
+			if(body.email)
+			{
+				user.email = body.email;
+			}
+
+			if(body.namespace)
+			{
+				user.namespace = body.namespace;
+			}
+
+			if(body.password)
+			{
+				var password = crypto.createHmac('sha256', user.email);
+					password.update(body.password);
+
+				user.password = password.digest('hex');
+			}
+
+			callback();
+		},
+		function(callback)
+		{
+			if(body.namespace)
+			{
+				User
+				.findOne({
+					namespace : body.namespace
+				})
+				.exec(function(err, retData)
+				{
+					if(retData != null)
+					{
+						type = 0;
+						response.code = 4;
+						status = 409;
+						callback(true);
+					}
+					else
+					{
+						callback();
+					}
+				});
+			}
+		},
+		function(callback)
+		{
+			user.save(function(err, retData)
+			{
+				if(err)
+				{
+					console.log(err);
+					response.code = 999;
+					status = 500;
+					callback(true);
+				}
+				else
+				{
+					req.session.user = user.toObject();
+					callback();
+				}
+			});
+		}
+	], function(invalid)
+	{
+		if(!invalid)
+			response = user;
+
+		if(!html)
+		{
+			if(status != 200)
+			{
+				general.errorHandler(res, response.code, status);
+			}
+			else
+			{
+				res.status(status).send(response);
+			}
+		}
+		else
+		{
+			if(status != 200)
+			{
+				if(type == 0)
+				{
+					req.session.message = 'This namespace already exists!';
+				}
+			}
+			
+			res.redirect('/web/user');
+		}
+	});
+}
 
 /**
  * Auth an User.
@@ -189,7 +336,7 @@ var auth = function(req, res)
 		},
 		function(callback)
 		{
-			var password = crypto.createHmac('sha1', body.email);
+			var password = crypto.createHmac('sha256', body.email);
 				password.update(body.password);
 
 			password = password.digest('hex');
@@ -266,7 +413,8 @@ var auth = function(req, res)
 		{
 			if(status != 200)
 			{
-				res.redirect('/web?message=Email+or+password+incorrect!');
+				req.session.message = 'Email or password incorrect!';
+				res.redirect('/web');
 			}
 			else
 			{

@@ -1,0 +1,165 @@
+doctype html
+html
+	head
+		title App Hooks
+		link(rel="stylesheet", href="/css/app-hooks.css")
+		link(rel="stylesheet", href="/css/prism.css")
+	body
+		header.compact
+			a.button(href="/")
+				.brand
+
+		.container
+			.documentation
+				h1 Documentation
+
+				section.introduction
+					p A single hook will reach all devices listening to it.
+				section.rules
+					h2 Rules
+					ul
+						li A namespace cannot send more than one hook per second.
+						li You should never use your appSecret on client side.
+				section.endpoints
+					h2 Endpoints
+					p The only endpoint that is important to the general user is the one that sends the push notification to all devices listening to a given namespace.
+					p.answer [POST] /device/push
+					p.answer With body: title, message, apiSecret
+				hr
+				section.examples
+					h2 Examples
+					p.answer Shell
+					pre
+						code.language-bash
+							| curl "https://apphooks.com/device/push"
+							| -d title="Sample title"
+							| -d message="Sample message"
+							| -d apiSecret="Sample apiSecret"
+							| -X POST
+					p.answer Javascript
+					pre
+						code.language-javascript
+							| var body = [];
+							| var data = {
+							|     title : 'Sample title',
+							|     message : 'Sample message',
+							|     apiSecret : 'Sample apiSecret'
+							| };
+							| 
+							| for(var key in data) {
+							|     body.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+							| }
+							| 
+							| body = body.join('&');
+							| 
+							| var exec = new XMLHttpRequest();
+							| exec.open('post', 'https://apphooks.com/device/push', true);
+							| exec.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+							| exec.send(body);
+					p.answer PHP
+					pre
+						code.language-php
+							| $body = [
+							|     'title' => 'Sample title',
+							|     'message' => 'Sample message',
+							|     'apiSecret' => 'Sample apiSecret'
+							| ];
+							| 
+							| $headers = ['Content-Type: application/x-www-form-urlencoded'];
+							| 
+							| $ch = curl_init();
+							| curl_setopt($ch, CURLOPT_URL, 'https://apphooks.com/device/push');
+							| curl_setopt($ch, CURLOPT_POST, true);
+							| curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($body));
+							| curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+							| curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+							| curl_exec($ch);
+							| curl_close($ch);
+					p.answer Ruby
+					pre
+						code.language-ruby
+							| require 'uri'
+							| require 'net/http'
+							|  
+							| body = {
+							|     'title' => 'Sample title',
+							|     'message' => 'Sample message',
+							|     'apiSecret' => 'Sample apiSecret'
+							| };
+							| 
+							| uri = URI.parse('https://apphooks.com/device/push')
+							| httpClient = Net::HTTP.new(uri.host, uri.port)
+							|  
+							| post = Net::HTTP::Post.new(uri.request_uri)
+							| post.set_form_data(body)
+							| 
+							| httpClient.request(post)
+					p.answer Python
+					pre
+						code.language-python
+							| import urllib
+							| import urllib2
+							|  
+							| body = {
+							|     'title' : 'Sample title',
+							|     'message' : 'Sample message',
+							|     'apiSecret' : 'Sample apiSecret'
+							| }
+							| 
+							| url = 'https://apphooks.com/device/push'
+							| req = urllib2.Request(url, urllib.urlencode(body))
+							| urllib2.urlopen(req)p.answer Python
+					p.answer Java
+					pre
+						code.language-java
+							| DefaultHttpClient httpClient = new DefaultHttpClient();
+							| HttpResponse response = null;
+							| 
+							| try {
+							|     URI uri = URIUtils.createURI("https", "apphooks.com", 443, "device/push", null, null);
+							| 
+							|     HttpPost httpPost = new HttpPost(uri);
+							|     httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
+							| 
+							|     List<NameValuePair> body = new ArrayList<NameValuePair>();
+							|     body.add(new BasicNameValuePair("title", "Sample title"));
+							|     body.add(new BasicNameValuePair("message", "Sample message"));
+							|     body.add(new BasicNameValuePair("apiSecret", "Sample apiSecret"));
+							| 
+							|     httpPost.setEntity(new UrlEncodedFormEntity(body, HTTP.UTF_8));
+							| 
+							|     response = httpClient.execute(httpPost);
+							| } catch (ClientProtocolException e) {
+							|     e.printStackTrace();
+							| } catch (IOException e) {
+							|     e.printStackTrace();
+							| } catch (URISyntaxException e1) {
+							|     e1.printStackTrace();
+							| } finally {
+							|     //	
+							| }
+					p.answer Objective-C
+					pre
+						code.language-objectivec
+							| NSURL *url = [NSURL URLWithString:@"https://apphooks.com/device/push"];
+							| NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+							| [request setHTTPMethod:@"POST"];
+							| [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+							| 
+							| NSString *title = @"Sample title";
+							| NSString *message = @"Sample message";
+							| NSString *apiSecret = @"Sample apiSecret";
+							| NSString *query = [NSString stringWithFormat:@"title=%@&message=%@&apiSecret=%@", title, message, apiSecret];
+							| NSData *body = [query dataUsingEncoding:NSUTF8StringEncoding];
+							| 
+							| [request setHTTPBody:body];
+							| 
+							| [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *body, NSError *connectionError) {
+							|     NSLog(@"responseData: %@, error: %@: responseItself: %@", body, connectionError, response);
+							| }];
+
+		footer
+			p Made with &#9829; by <a href="https://grupotrilha.com.br" target="_blank">Trilha</a>
+
+	script(src="/js/prism.js")
+	script(src="/js/page-docs.js")

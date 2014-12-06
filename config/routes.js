@@ -8,6 +8,7 @@ exports.init = function(app)
 	app.get('/', function(req, res) { res.redirect('/web') });
 	app.get('/web', page.index);
 	app.get('/web/user', page.user);
+	app.get('/web/docs', page.docs);
 
 	app.get('/user', general.isAuthenticated, user.get);
 	app.get('/user/logout', general.isAuthenticated, user.logout);

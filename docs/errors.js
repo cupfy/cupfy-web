@@ -5,6 +5,8 @@ var errors = [
 		description: 'Please check the fields.' },
 	{ code: 3,
 		description: 'Email address already exists.' },
+	{ code: 4,
+		description: 'Namespace already exists.' },
 	{ code: 10,
 		description: 'Device not found.' },
 	{ code: 13,

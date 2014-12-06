@@ -28,7 +28,7 @@ var timestamp = function()
  */
 exports.get = function(req, res)
 {
-	var apiKey = req.params.apiKey;
+	var namespace = req.params.namespace;
 	var query = req.query;
 
 	var response = {};
@@ -90,7 +90,7 @@ exports.get = function(req, res)
 				}
 				else
 				{
-					device.apiKey = retData.apiKey;
+					device.namespace = retData.namespace;
 
 					callback();
 				}
@@ -199,9 +199,11 @@ exports.remove = function(req, res)
 /**
  * Create a Device.
  *
+ * @param body.name The device name.
+ * @param body.model The device model.
  * @param body.type The device type.
  * @param body.pushId The device pushId.
- * @param body.apiKey The user apiKey.
+ * @param body.namespace The user namespace.
  *
  * @return Device The JSON representation of the device.
  */
@@ -218,9 +220,10 @@ exports.new = function(req, res)
 
 		function(callback)
 		{
-			if(body.type === undefined
+			if(body.name === undefined
+			|| body.type === undefined
 			|| body.pushId === undefined
-			|| body.apiKey === undefined)
+			|| body.namespace === undefined)
 			{
 				response.code = 2;
 				status = 400;
@@ -235,7 +238,7 @@ exports.new = function(req, res)
 		{
 			User
 			.findOne({
-				apiKey : body.apiKey
+				namespace : body.namespace
 			})
 			.exec(function(err, retData)
 			{
@@ -273,10 +276,16 @@ exports.new = function(req, res)
 			{
 				device = new Device({
 					user: user._id,
+					name: body.name,
 					type: body.type,
 					pushId: body.pushId,
 					approved: false
 				});
+
+				if(body.model)
+				{
+					device.model = body.model;
+				}
 
 				device.save(function(err, retData)
 				{

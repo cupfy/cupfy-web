@@ -3,6 +3,8 @@ var mongoose = require('mongoose')
 
 var DeviceSchema = mongoose.Schema({
 	user: { type: String, ref: 'User' },
+	name: String,
+	model: String,
 	type: Number,
 	pushId: String,
 	approved: Boolean

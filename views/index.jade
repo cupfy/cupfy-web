@@ -5,20 +5,25 @@ html
 		link(rel="stylesheet", href="/css/app-hooks.css")
 
 	body
-		section.access
-			form(action="/user/login?html=true", method="post")
+		section.modal.access
+			form#access(action="/user/login?html=true", method="post")
 				.close X
 				h1 Access
 				-if(message)
 					p.error=message
 					script window.onload = function() { ui.toggleAccess(); };
 
-				input(name="email", type="email", placeholder="Email address")
-				input(name="password", type="password", placeholder="Your password")
+				input(name="email", type="email", placeholder="Email address", required)
+				input(name="password", type="password", placeholder="Your password", required)
 				button Register or Login
+
 		header
+			a.button(href="/web/docs", target="_blank")
+				button.docs Documentation
+
 			button.access Login or Register
-			.brand
+			a.button(href="/")
+				.brand
 			.title App Hooks
 			.message Send notifications to all registered devices
 				br
@@ -29,12 +34,20 @@ html
 				.content
 					.part.part-1
 						.pic
-						span Create your account to receive your API Key.
+						span Create your namespace to receive your API Secret.
 					.part.part-2
 						.pic
-						span Download the Android application and setup the API Key.
+						span Send a POST request with title, message and API Secret.
 					.part.part-3
 						.pic
-						span Send a POST request with title, message and API Secret.
+						span Receive your notification on your mobile device.
+			hr
+			.available-devices
+				h1 Available devices
+				p Currently we only support <a href="#">Android</a>
+				p It'll be available soon for iOS, Windows Phone, Firefox OS, OSx, Windows, Facebook and any other platform you could imagine.
 	
-	script(src="/js/app-hooks.js")
+		footer
+			p Made with &#9829; by <a href="https://grupotrilha.com.br" target="_blank">Trilha</a>
+			
+	script(src="/js/page-index.js")

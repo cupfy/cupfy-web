@@ -4,7 +4,7 @@ var mongoose = require('mongoose')
 var UserSchema = mongoose.Schema({
 	email: String,
 	password: String,
-	apiKey: String,
+	namespace: String,
 	apiSecret: String
 });
 

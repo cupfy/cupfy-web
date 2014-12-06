@@ -31,13 +31,30 @@ exports.index = function(req, res)
 	{
 		var params = {};
 
-		if(req.query.message)
+		if(req.session.message)
 		{
-			params.message = req.query.message;
+			params.message = req.session.message;
+			req.session.message = undefined;
 		}
 
 		res.render('index', params);
 	}
+}
+
+/**
+ * Get the docs page.
+ */
+exports.docs = function(req, res)
+{
+	var params = {};
+
+	if(req.session.message)
+	{
+		params.message = req.session.message;
+		req.session.message = undefined;
+	}
+
+	res.render('docs', params);
 }
 
 /**
@@ -53,9 +70,10 @@ exports.user = function(req, res)
 		{
 			var params = {};
 
-			if(req.query.message)
+			if(req.session.message)
 			{
-				params.message = req.query.message;
+				params.message = req.session.message;
+				req.session.message = undefined;
 			}
 
 			params.user = req.session.user;

@@ -2,37 +2,79 @@ doctype html
 html
 	head
 		title App Hooks
+		link(rel="stylesheet", href="/css/app-hooks.css")
+
 	body
-		h1= "Hello " + user.name
-		a(href="/user/logout") Logout
+		section.modal.namespace
+			form#namespace(action="/user?html=true", method="post")
+				h1 Set your namespace
+				p Use at least 10 characters of type [a-zA-Z0-9.]
+				-if(!user.namespace)
+					-if(message)
+						p.error=message
+					script window.onload = function() { ui.registerNamespace(); };
 
-		-if(message)
-			p=message
-		h3 Here is your information
-		p= "API Key: " + user.apiKey
-		p= "API Secret: " + user.apiSecret
-		
-		h3 Here is your devices
-		table(border="1")
-			thead
-				td ID
-				td Type
-				td Status
-			tbody
-				-for(var i in devices)
-					tr
-						td=devices[i].pushId
-						-if(devices[i].type == 0)
-							td Android
-						-else
-							td iOS
-						-if(devices[i].approved)
-							td True
-								form(action="/device/"+devices[i]._id+"/remove?html=true", method="post")
-									button Remove
-						-else
-							td False
-								form(action="/device/"+devices[i]._id+"/approve?html=true", method="post")
-									button Approve
+				input(name="namespace", type="text", placeholder="com.example.myapp", required)
+				button Set it!
 
-	script(src="/js/app-hooks.js")
+		header.compact
+			a.button(href="/web/docs", target="_blank")
+				button.docs Documentation
+
+			a.button(href="/user/logout")
+				button.access Logout
+			a.button(href="/")
+				.brand
+
+		.container
+			.dashboard
+				h1 Dashboard
+
+				-if(message)
+					p=message
+
+				.board
+					p Namespace
+					p.code= user.namespace
+					p Secret
+					p.code= user.apiSecret
+				hr
+				h2 Registered devices
+				table.devices
+					thead
+						td #
+						td Name
+						td Model
+						td Status
+					tbody
+						-for(var i in devices)
+							tr
+								td=i
+								td=devices[i].name
+								-if(devices[i].type == 0)
+									td=devices[i].model + " (Android)"
+								-else
+									td=devices[i].model + " (iOS)"
+								-if(devices[i].approved)
+									td
+										form(action="/device/"+devices[i]._id+"/remove?html=true", method="post")
+											button Remove
+								-else
+									td
+										form(action="/device/"+devices[i]._id+"/approve?html=true", method="post")
+											button Approve
+				-if(devices.length == 0)
+					p.center This namespace doesn't have any device registered yet.
+
+				hr
+				h2 FAQ
+				.faq
+					p.question
+						| How do I register a device?
+					p.answer
+						| You need to download the <a href="#">App Hooks application</a> on your device and add your namespace to receive the push notifications.
+
+		footer
+			p Made with &#9829; by <a href="https://grupotrilha.com.br" target="_blank">Trilha</a>
+
+	script(src="/js/page-user.js")
