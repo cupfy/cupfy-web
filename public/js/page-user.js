@@ -4,32 +4,34 @@ var UI = function() {
 UI.prototype = {
 
 	registerNamespace : function() {
-		var namespace = document.querySelector("section.namespace");
+		var namespace = $("section.namespace");
 
-		namespace.style.display = "inline-flex";
+		namespace.css({display : "block"});
 	},
 
 	init : function() {
-		var namespaceField = document.querySelector("input[name=namespace]");
+		var namespaceField = $("input[name=namespace]");
 
-		namespaceField.addEventListener("blur", this.verifyNamespace);
+		namespaceField.on("blur", this.verifyNamespace);
 	},
 
 	verifyNamespace : function() {
-		var namespaceField = document.querySelector("input[name=namespace]");
 		var invalid = /[^a-zA-Z0-9.]/g;
 		
-		if(namespaceField.value.length > 9
-		&& !invalid.test(namespaceField.value)) {
-			namespaceField.classList.add('valid');
-			namespaceField.classList.remove('invalid');
+		if($(this).val().length > 9
+		&& !invalid.test($(this).val())) {
+			$(this).addClass('valid');
+			$(this).removeClass('invalid');
 		} else {
-			namespaceField.classList.add('invalid');
-			namespaceField.classList.remove('valid');
+			$(this).addClass('invalid');
+			$(this).removeClass('valid');
 		}
 	}
 }
 
 var ui = new UI();
 
-ui.init();
+$(document).ready(function()
+{
+	ui.init();
+});

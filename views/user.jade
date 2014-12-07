@@ -9,10 +9,8 @@ html
 			form#namespace(action="/user?html=true", method="post")
 				h1 Set your namespace
 				p Use at least 10 characters of type [a-zA-Z0-9.]
-				-if(!user.namespace)
-					-if(message)
-						p.error=message
-					script window.onload = function() { ui.registerNamespace(); };
+				-if(message)
+					p.error=message
 
 				input(name="namespace", type="text", placeholder="com.example.myapp", required)
 				button Set it!
@@ -77,4 +75,8 @@ html
 		footer
 			p Made with &#9829; by <a href="https://grupotrilha.com.br" target="_blank">Trilha</a>
 
+	script(src="/js/jquery-1.11.1.min.js")
 	script(src="/js/page-user.js")
+
+	-if(!user.namespace)
+		script $(document).ready(function() { ui.registerNamespace(); });

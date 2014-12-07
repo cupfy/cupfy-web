@@ -108,6 +108,7 @@ section.modal form {
 	margin: auto;
 	min-width: 300px;
 	position: relative;
+	top: 25%;
 }
 
 input,

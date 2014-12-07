@@ -1,74 +1,76 @@
-var UI = function() {
-	this.accessIsShown = false;
-}
-
-UI.prototype = {
-	hideAccess : function() {
-		var access = document.querySelector("section.access");
-
-		access.style.display = "none";
-	},
-
-	showAccess : function() {
-		var access = document.querySelector("section.access");
-
-		access.style.display = "inline-flex";
-	},
-
-	toggleAccess : function() {
-		if(ui.accessIsShown) {
-			ui.hideAccess();
-		} else {
-			ui.showAccess();
-		}
-
-		ui.accessIsShown = !ui.accessIsShown;
-	},
-
-	accessForm : function() {
-		var accessForm = document.getElementById('access');
-
-		accessForm.onsubmit = function() {
-			var emailField = document.querySelector("input[type=email]");
-
-			if(emailField.classList.contains('invalid')) {
-				return false;
-			}
-		}
-	},
-
-	init : function() {
-		var showAccessButton = document.querySelector("header button.access");
-		var hideAccessButton = document.querySelector("section.access form .close");
-
-		showAccessButton.addEventListener("click", this.toggleAccess);
-		hideAccessButton.addEventListener("click", this.toggleAccess);
-
-		var emailField = document.querySelector("input[type=email]");
-
-		emailField.addEventListener("blur", this.verifyEmail);
-
-		this.accessForm();
-	},
-
-	verifyEmail : function() {
-		var emailField = document.querySelector("input[type=email]");
-
-		if(ui.validateEmail(emailField.value)) {
-			emailField.classList.add('valid');
-			emailField.classList.remove('invalid');
-		} else {
-			emailField.classList.add('invalid');
-			emailField.classList.remove('valid');
-		}
-	},
-
-	validateEmail : function(email) { 
-		var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-		return re.test(email);
+$(document).ready(function()
+{
+	var UI = function() {
+		this.accessIsShown = false;
 	}
-}
 
-var ui = new UI();
+	UI.prototype = {
+		hideAccess : function() {
+			var access = $('section.access');
 
-ui.init();
+			access.css({display : 'none'});
+		},
+
+		showAccess : function() {
+			var access = $('section.access');
+
+			access.css({display : 'block'});
+		},
+
+		toggleAccess : function() {
+			if(ui.accessIsShown) {
+				ui.hideAccess();
+			} else {
+				ui.showAccess();
+			}
+
+			ui.accessIsShown = !ui.accessIsShown;
+		},
+
+		accessForm : function() {
+			var accessForm = $('#access');
+
+			accessForm.on('submit', function()
+			{
+				var emailField = $(this).children('input[type=email]');
+
+				if(emailField.hasClass('invalid')) {
+					return false;
+				}
+			});
+		},
+
+		init : function() {
+			var showAccessButton = $('header button.access');
+			var hideAccessButton = $('section.access form .close');
+
+			showAccessButton.on('click', ui.toggleAccess);
+			hideAccessButton.on('click', ui.toggleAccess);
+
+			var emailField = $('#access input[type=email]');
+
+			emailField.on('blur', ui.verifyEmail);
+
+			ui.accessForm();
+		},
+
+		verifyEmail : function() {
+			if(ui.validateEmail($(this).val())) {
+				$(this).addClass('valid');
+				$(this).removeClass('invalid');
+			} else {
+				$(this).removeClass('valid');
+				$(this).addClass('invalid');
+			}
+		},
+
+		validateEmail : function(email) { 
+			var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+			return re.test(email);
+		}
+	}
+
+	var ui = new UI();
+
+	ui.init();
+});
