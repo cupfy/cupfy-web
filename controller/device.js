@@ -550,11 +550,13 @@ exports.push = function(req, res)
 		},
 		function(callback)
 		{
-			Device
+			Hook
 			.find({
-				user : user._id,
-				approved : true
+				namespace : user.namespace,
+				approved : true,
+				removed : false
 			})
+			.populate('device')
 			.lean()
 			.exec(function(err, retData)
 			{
@@ -572,17 +574,17 @@ exports.push = function(req, res)
 					var android = [];
 					var ios = [];
 
-					for(var i in retData)
+					retData.map(function(hook)
 					{
-						if(retData[i].type == 0)
+						if(hook.device.type == 0)
 						{
-							android.push(retData[i].pushId);
+							android.push(hook.device.pushId);
 						}
 						else
 						{
-							ios.push(retData[i].pushId);
+							ios.push(hook.device.pushId);
 						}
-					}
+					});
 
 					push.send(json, android, ios, callback);
 				}
