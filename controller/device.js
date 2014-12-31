@@ -364,13 +364,42 @@ exports.hook = function(req, res)
 		},
 		function(callback)
 		{
-			hook = new Hook({
-				device: device._id,
-				namespace: body.namespace,
-				approved: false,
-				removed: false
-			});
+			Hook
+			.findOne({
+				namespace : body.namespace,
+				device : device._id
+			})
+			.exec(function(err, retData)
+			{
+				hook = retData;
 
+				callback();
+			});
+		},
+		function(callback)
+		{
+			if(hook == null) {
+				hook = new Hook({
+					device: device._id,
+					namespace: body.namespace,
+					approved: false,
+					removed: false
+				});
+
+				callback();
+			} else if(hook.removed) {
+				hook.removed = false;
+				hook.approved = false;
+
+				callback();
+			} else {
+				response.code = 13;
+				status = 409;
+				callback(true);
+			}
+		},
+		function(callback)
+		{
 			hook.save(function(err, retData)
 			{
 				if(err)

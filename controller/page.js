@@ -82,7 +82,8 @@ exports.user = function(req, res)
 			params.devices = hooks.map(function(hook)
 			{
 				hook.device.approved = hook.approved;
-				return hook.device;				
+				hook.device.removed = hook.removed;
+				return hook.device;
 			});
 
 			res.render('user', params);
