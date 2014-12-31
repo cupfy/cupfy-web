@@ -568,7 +568,8 @@ exports.push = function(req, res)
 				{
 					var json = {
 						title : body.title,
-						message : body.message
+						message : body.message,
+						namespace : user.namespace
 					}
 
 					var android = [];
