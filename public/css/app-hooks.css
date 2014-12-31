@@ -25,6 +25,14 @@ p.answer {
 	color: #888;
 }
 
+p.message {
+	background-color: rgba(241, 196, 15, 0.12);
+	color: #CFAA15;
+	border: 1px solid #CFAA15;
+	padding: 15px;
+	border-radius: 5px;
+}
+
 a {
 	color: #2F81B7;
 	background-color: #fff;

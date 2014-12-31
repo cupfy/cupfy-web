@@ -18,6 +18,7 @@ exports.init = function(app)
 	app.post('/user/login', user.auth);
 
 	app.post('/device', device.new);
+	app.post('/device/hook', device.hook);
 	app.post('/device/:id/approve', general.isAuthenticated, device.approve);
 	app.post('/device/:id/remove', general.isAuthenticated, device.remove);
 	app.post('/device/push', device.push);

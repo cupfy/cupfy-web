@@ -29,7 +29,7 @@ html
 				h1 Dashboard
 
 				-if(message)
-					p=message
+					p.message= message
 
 				.board
 					p Namespace
@@ -46,21 +46,22 @@ html
 						td Status
 					tbody
 						-for(var i in devices)
-							tr
-								td=i
-								td=devices[i].name
-								-if(devices[i].type == 0)
-									td=devices[i].model + " (Android)"
-								-else
-									td=devices[i].model + " (iOS)"
-								-if(devices[i].approved)
-									td
-										form(action="/device/"+devices[i]._id+"/remove?html=true", method="post")
-											button Remove
-								-else
-									td
-										form(action="/device/"+devices[i]._id+"/approve?html=true", method="post")
-											button Approve
+							-if(!devices[i].removed)
+								tr
+									td=i
+									td=devices[i].name
+									-if(devices[i].type == 0)
+										td=devices[i].model + " (Android)"
+									-else
+										td=devices[i].model + " (iOS)"
+									-if(devices[i].approved)
+										td
+											form(action="/device/"+devices[i]._id+"/remove?html=true", method="post")
+												button Remove
+									-else
+										td
+											form(action="/device/"+devices[i]._id+"/approve?html=true", method="post")
+												button Approve
 				-if(devices.length == 0)
 					p.center This namespace doesn't have any device registered yet.
 

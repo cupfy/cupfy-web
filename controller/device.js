@@ -8,6 +8,7 @@ var async = require('async')
 
 var User = userModel.getUserModel();
 var Device = deviceModel.getDeviceModel();
+var Hook = deviceModel.getHookModel();
 
 /**
  * Get current timestamp
@@ -24,17 +25,16 @@ var timestamp = function()
  *
  * @param pushId The device pushId.
  *
- * @return Device The JSON representation of the device.
+ * @return Hook The JSON representation of the hooks.
  */
 exports.get = function(req, res)
 {
-	var namespace = req.params.namespace;
 	var query = req.query;
 
 	var response = {};
 	var status = 200;
 
-	var device;
+	var hooks;
 	
 	async.series([
 
@@ -57,7 +57,6 @@ exports.get = function(req, res)
 			.findOne({
 				pushId : query.pushId
 			})
-			.lean()
 			.exec(function(err, retData)
 			{
 				if(retData == null)
@@ -76,30 +75,21 @@ exports.get = function(req, res)
 		},
 		function(callback)
 		{
-			User
-			.findOne({
-				_id : device.user
+			Hook
+			.find({
+				device : device._id
 			})
 			.exec(function(err, retData)
 			{
-				if(retData == null)
-				{
-					response.code = 1;
-					status = 404;
-					callback(true);
-				}
-				else
-				{
-					device.namespace = retData.namespace;
+				hooks = retData;
 
-					callback();
-				}
+				callback();
 			});
 		}
 	], function(invalid)
 	{
 		if(!invalid)
-			response = device;
+			response = hooks;
 
 		if(status != 200)
 		{
@@ -126,16 +116,16 @@ exports.remove = function(req, res)
 	var response = {};
 	var status = 200;
 
-	var device;
+	var hook;
 	
 	async.series([
 
 		function(callback)
 		{
-			Device
+			Hook
 			.findOne({
-				_id : id,
-				user : user._id
+				device : id,
+				namespace : user.namespace
 			})
 			.exec(function(err, retData)
 			{
@@ -147,7 +137,7 @@ exports.remove = function(req, res)
 				}
 				else
 				{
-					device = retData;
+					hook = retData;
 
 					callback();
 				}
@@ -155,7 +145,9 @@ exports.remove = function(req, res)
 		},
 		function(callback)
 		{
-			device.remove(function(err, retData)
+			hook.removed = true;
+
+			hook.save(function(err, retData)
 			{
 				if(err)
 				{
@@ -186,11 +178,13 @@ exports.remove = function(req, res)
 		{
 			if(status != 200)
 			{
-				res.redirect('/web/user?message=Something+went+wrong.');
+				req.session.message = 'Oops... something went wrong!';
+				res.redirect('/web/user');
 			}
 			else
 			{
-				res.redirect('/web/user?message=Success.');
+				req.session.message = 'Device removed!';
+				res.redirect('/web/user');
 			}
 		}
 	});
@@ -203,7 +197,6 @@ exports.remove = function(req, res)
  * @param body.model The device model.
  * @param body.type The device type.
  * @param body.pushId The device pushId.
- * @param body.namespace The user namespace.
  *
  * @return Device The JSON representation of the device.
  */
@@ -214,16 +207,16 @@ exports.new = function(req, res)
 	var response = {};
 	var status = 200;
 
-	var user, device;
+	var device;
 	
 	async.series([
 
 		function(callback)
 		{
 			if(body.name === undefined
+			|| body.model === undefined
 			|| body.type === undefined
-			|| body.pushId === undefined
-			|| body.namespace === undefined)
+			|| body.pushId === undefined)
 			{
 				response.code = 2;
 				status = 400;
@@ -236,31 +229,8 @@ exports.new = function(req, res)
 		},
 		function(callback)
 		{
-			User
-			.findOne({
-				namespace : body.namespace
-			})
-			.exec(function(err, retData)
-			{
-				if(retData == null)
-				{
-					response.code = 100;
-					status = 401;
-					callback(true);
-				}
-				else
-				{
-					user = retData;
-
-					callback();
-				}
-			});
-		},
-		function(callback)
-		{
 			Device
 			.findOne({
-				user : user._id,
 				pushId : body.pushId
 			})
 			.exec(function(err, retData)
@@ -275,17 +245,11 @@ exports.new = function(req, res)
 			if(device == null)
 			{
 				device = new Device({
-					user: user._id,
 					name: body.name,
+					model: body.model,
 					type: body.type,
-					pushId: body.pushId,
-					approved: false
+					pushId: body.pushId
 				});
-
-				if(body.model)
-				{
-					device.model = body.model;
-				}
 
 				device.save(function(err, retData)
 				{
@@ -324,29 +288,43 @@ exports.new = function(req, res)
 }
 
 /**
- * Approve a Device.
+ * Hook a Device.
  *
- * @return Device The JSON representation of the device.
+ * @param body.pushId The device pushId.
+ * @param body.namespace The namespace.
+ *
+ * @return Hook The JSON representation of the hook.
  */
-exports.approve = function(req, res)
+exports.hook = function(req, res)
 {
-	var html = req.query.html;
-	var id = req.params.id;
-	var user = req.user;
+	var body = req.body;
 
 	var response = {};
 	var status = 200;
 
-	var device;
-
+	var device, hook;
+	
 	async.series([
 
 		function(callback)
 		{
+			if(body.pushId === undefined
+			|| body.namespace === undefined)
+			{
+				response.code = 2;
+				status = 400;
+				callback(true);
+			}
+			else
+			{
+				callback();
+			}
+		},
+		function(callback)
+		{
 			Device
 			.findOne({
-				_id : id,
-				user : user._id
+				pushId : body.pushId
 			})
 			.exec(function(err, retData)
 			{
@@ -366,9 +344,34 @@ exports.approve = function(req, res)
 		},
 		function(callback)
 		{
-			device.approved = true;
+			User
+			.findOne({
+				namespace : body.namespace
+			})
+			.exec(function(err, retData)
+			{
+				if(retData == null)
+				{
+					response.code = 1;
+					status = 404;
+					callback(true);
+				}
+				else
+				{
+					callback();
+				}
+			});
+		},
+		function(callback)
+		{
+			hook = new Hook({
+				device: device._id,
+				namespace: body.namespace,
+				approved: false,
+				removed: false
+			});
 
-			device.save(function(err, retData)
+			hook.save(function(err, retData)
 			{
 				if(err)
 				{
@@ -386,7 +389,83 @@ exports.approve = function(req, res)
 	], function(invalid)
 	{
 		if(!invalid)
-			response = device;
+			response = hook;
+
+		if(status != 200)
+		{
+			general.errorHandler(res, response.code, status);
+		}
+		else
+		{
+			res.status(status).send(response);
+		}
+	});
+}
+
+/**
+ * Approve a Device.
+ *
+ * @return Device The JSON representation of the device.
+ */
+exports.approve = function(req, res)
+{
+	var html = req.query.html;
+	var id = req.params.id;
+	var user = req.user;
+
+	var response = {};
+	var status = 200;
+
+	var hook;
+
+	async.series([
+
+		function(callback)
+		{
+			Hook
+			.findOne({
+				device : id,
+				namespace : user.namespace
+			})
+			.exec(function(err, retData)
+			{
+				if(retData == null)
+				{
+					response.code = 10;
+					status = 404;
+					callback(true);
+				}
+				else
+				{
+					hook = retData;
+
+					callback();
+				}
+			});
+		},
+		function(callback)
+		{
+			hook.approved = true;
+
+			hook.save(function(err, retData)
+			{
+				if(err)
+				{
+					console.log(err);
+					response.code = 999;
+					status = 500;
+					callback(true);
+				}
+				else
+				{
+					callback();
+				}
+			});
+		}
+	], function(invalid)
+	{
+		if(!invalid)
+			response = hook;
 
 		if(!html)
 		{
@@ -403,11 +482,13 @@ exports.approve = function(req, res)
 		{
 			if(status != 200)
 			{
-				res.redirect('/web/user?message=Something+went+wrong.');
+				req.session.message = 'Oops... something went wrong!';
+				res.redirect('/web/user');
 			}
 			else
 			{
-				res.redirect('/web/user?message=Success.');
+				req.session.message = 'Device approved!';
+				res.redirect('/web/user');
 			}
 		}
 	});

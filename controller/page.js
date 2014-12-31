@@ -7,6 +7,7 @@ var async = require('async')
 
 var User = userModel.getUserModel();
 var Device = deviceModel.getDeviceModel();
+var Hook = deviceModel.getHookModel();
 
 /**
  * Get current timestamp
@@ -64,9 +65,10 @@ exports.user = function(req, res)
 {
 	if(req.session.user)
 	{
-		Device
-		.find({ user : req.session.user._id })
-		.exec(function(err, devices)
+		Hook
+		.find({ namespace : req.session.user.namespace })
+		.populate('device')
+		.exec(function(err, hooks)
 		{
 			var params = {};
 
@@ -77,7 +79,11 @@ exports.user = function(req, res)
 			}
 
 			params.user = req.session.user;
-			params.devices = devices;
+			params.devices = hooks.map(function(hook)
+			{
+				hook.device.approved = hook.approved;
+				return hook.device;				
+			});
 
 			res.render('user', params);
 		});
