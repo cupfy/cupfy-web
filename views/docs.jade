@@ -19,12 +19,12 @@ html
 					h2 Rules
 					ul
 						li A namespace cannot send more than one hook per second.
-						li You should never use your appSecret on client side.
+						li You should never use your apiSecret on client side (oh, really?).
 				section.endpoints
 					h2 Endpoints
 					p The only endpoint that is important to the general user is the one that sends the push notification to all devices listening to a given namespace.
 					p.answer [POST] /device/push
-					p.answer With body: title, message, apiSecret
+					p.answer With body: title, message, namespace, apiSecret
 				hr
 				section.examples
 					h2 Examples
@@ -34,6 +34,7 @@ html
 							| curl "https://apphooks.com/device/push"
 							| -d title="Sample title"
 							| -d message="Sample message"
+							| -d namespace="com.example.hook"
 							| -d apiSecret="Sample apiSecret"
 							| -X POST
 					p.answer Javascript
@@ -43,6 +44,7 @@ html
 							| var data = {
 							|     title : 'Sample title',
 							|     message : 'Sample message',
+							|     namespace : 'com.example.hook',
 							|     apiSecret : 'Sample apiSecret'
 							| };
 							| 
@@ -62,6 +64,7 @@ html
 							| $body = [
 							|     'title' => 'Sample title',
 							|     'message' => 'Sample message',
+							|     'namespace' => 'com.example.hook',
 							|     'apiSecret' => 'Sample apiSecret'
 							| ];
 							| 
@@ -84,6 +87,7 @@ html
 							| body = {
 							|     'title' => 'Sample title',
 							|     'message' => 'Sample message',
+							|     'namespace' => 'com.example.hook',
 							|     'apiSecret' => 'Sample apiSecret'
 							| };
 							| 
@@ -103,6 +107,7 @@ html
 							| body = {
 							|     'title' : 'Sample title',
 							|     'message' : 'Sample message',
+							|     'namespace' : 'com.example.hook',
 							|     'apiSecret' : 'Sample apiSecret'
 							| }
 							| 
@@ -124,6 +129,7 @@ html
 							|     List<NameValuePair> body = new ArrayList<NameValuePair>();
 							|     body.add(new BasicNameValuePair("title", "Sample title"));
 							|     body.add(new BasicNameValuePair("message", "Sample message"));
+							|     body.add(new BasicNameValuePair("namespace", "com.example.hook"));
 							|     body.add(new BasicNameValuePair("apiSecret", "Sample apiSecret"));
 							| 
 							|     httpPost.setEntity(new UrlEncodedFormEntity(body, HTTP.UTF_8));
@@ -148,8 +154,9 @@ html
 							| 
 							| NSString *title = @"Sample title";
 							| NSString *message = @"Sample message";
+							| NSString *namespace = @"com.example.hook";
 							| NSString *apiSecret = @"Sample apiSecret";
-							| NSString *query = [NSString stringWithFormat:@"title=%@&message=%@&apiSecret=%@", title, message, apiSecret];
+							| NSString *query = [NSString stringWithFormat:@"title=%@&message=%@&namespace=%@&apiSecret=%@", title, message, namespace, apiSecret];
 							| NSData *body = [query dataUsingEncoding:NSUTF8StringEncoding];
 							| 
 							| [request setHTTPBody:body];

@@ -133,22 +133,38 @@ button {
 	box-sizing: border-box;
 }
 
+input[disabled] {
+	color: #aaa;
+	background-color: transparent;
+}
+
 button {
 	background-color: #2980b9;
 	color: #fff;
 	cursor: pointer;
 
-	-webkit-transition: background-color .25s;
-	   -moz-transition: background-color .25s;
-			transition: background-color .25s;
+	-webkit-transition: background-color .25s, color .25s, border-color .25s;
+	   -moz-transition: background-color .25s, color .25s, border-color .25s;
+			transition: background-color .25s, color .25s, border-color .25s;
 }
 
 button:hover {
 	background-color: #3498db;
 
-	-webkit-transition: background-color .25s;
-	   -moz-transition: background-color .25s;
-			transition: background-color .25s;
+	-webkit-transition: background-color .25s, color .25s, border-color .25s;
+	   -moz-transition: background-color .25s, color .25s, border-color .25s;
+			transition: background-color .25s, color .25s, border-color .25s;
+}
+
+button.success {
+	background-color: rgba(255, 255, 255, .1);
+	color: #27ae60;
+	border-color: #27ae60;
+	cursor: auto;
+
+	-webkit-transition: background-color .25s, color .75s, border-color .75s;
+	   -moz-transition: background-color .25s, color .75s, border-color .75s;
+			transition: background-color .25s, color .75s, border-color .75s;
 }
 
 input.invalid {

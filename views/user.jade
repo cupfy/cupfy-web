@@ -6,7 +6,7 @@ html
 
 	body
 		section.modal.namespace
-			form#namespace(action="/user?html=true", method="post")
+			form#namespace(action="/user/namespace?html=true", method="post")
 				h1 Set your namespace
 				p Use at least 10 characters of type [a-zA-Z0-9.]
 				-if(message)
@@ -33,7 +33,7 @@ html
 
 				.board
 					p Namespace
-					p.code= user.namespace
+					p.code= user.namespace[0]
 					p Secret
 					p.code= user.apiSecret
 				hr
@@ -66,6 +66,16 @@ html
 					p.center This namespace doesn't have any device registered yet.
 
 				hr
+				h2 Test drive
+				p After registering your devices you can make a test drive using the following form:
+				#test-drive.board.small
+					input(type="text", name="namespace", value=user.namespace[0], disabled)
+					input(type="text", name="apiSecret", value=user.apiSecret, disabled)
+					input(type="text", name="title", placeholder="Title")
+					input(type="text", name="message", placeholder="Message")
+					button Run!
+				p To see how this form works, take a look at our <a href="/web/docs">Documentation</a>
+				hr
 				h2 FAQ
 				.faq
 					p.question
@@ -73,11 +83,16 @@ html
 					p.answer
 						| You need to download the <a href="#">App Hooks application</a> on your device and add your namespace to receive the push notifications.
 
+					p.question
+						| How do I get another namespace?
+					p.answer
+						| If you are interested in obtaining another namespace please contact us at <a href="mailto:hello@grupotrilha.com.br">hello@grupotrilha.com.br</a>
+
 		footer
 			p Made with &#9829; by <a href="https://grupotrilha.com.br" target="_blank">Trilha</a>
 
 	script(src="/js/jquery-1.11.1.min.js")
 	script(src="/js/page-user.js")
 
-	-if(!user.namespace)
+	-if(user.namespace.length == 0)
 		script $(document).ready(function() { ui.registerNamespace(); });

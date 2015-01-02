@@ -15,6 +15,7 @@ exports.init = function(app)
 	app.get('/device', device.get);
 
 	app.post('/user', user.new);
+	app.post('/user/namespace', user.addNamespace);
 	app.post('/user/login', user.auth);
 
 	app.post('/device', device.new);

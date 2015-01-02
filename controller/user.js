@@ -103,7 +103,7 @@ var newUser = function(req, res)
 			user = new User({
 				email: body.email,
 				password: password,
-				namespace: null,
+				namespace: [],
 				apiSecret: apiSecret
 			});
 
@@ -160,7 +160,6 @@ exports.new = newUser;
  * Edit an User.
  *
  * @param body.email The user email.
- * @param body.namespace The user namespace.
  * @param body.password The user password.
  *
  * @return User The JSON representation of the user.
@@ -209,11 +208,6 @@ var editUser = function(req, res)
 				user.email = body.email;
 			}
 
-			if(body.namespace)
-			{
-				user.namespace = body.namespace;
-			}
-
 			if(body.password)
 			{
 				var password = crypto.createHmac('sha256', user.email);
@@ -226,27 +220,130 @@ var editUser = function(req, res)
 		},
 		function(callback)
 		{
+			user.save(function(err, retData)
+			{
+				if(err)
+				{
+					console.log(err);
+					response.code = 999;
+					status = 500;
+					callback(true);
+				}
+				else
+				{
+					req.session.user = user.toObject();
+					callback();
+				}
+			});
+		}
+	], function(invalid)
+	{
+		if(!invalid)
+			response = user;
+
+		if(!html)
+		{
+			if(status != 200)
+			{
+				general.errorHandler(res, response.code, status);
+			}
+			else
+			{
+				res.status(status).send(response);
+			}
+		}
+		else
+		{
+			if(status != 200)
+			{
+				if(type == 0)
+				{
+					req.session.message = 'This namespace already exists!';
+				}
+			}
+			
+			res.redirect('/web/user');
+		}
+	});
+}
+
+/**
+ * Add a namespace for User.
+ *
+ * @param body.namespace The user namespace.
+ *
+ * @return User The JSON representation of the user.
+ */
+exports.addNamespace = function(req, res)
+{
+	var html = req.query.html;
+	var body = req.body;
+
+	var response = {};
+	var status = 200;
+
+	var user = req.session.user;
+
+	// TODO: change this bullshit
+	var type = -1;
+	
+	async.series([
+
+		function(callback)
+		{
+			User
+			.findOne({
+				_id : user._id
+			})
+			.exec(function(err, retData)
+			{
+				if(retData == null)
+				{
+					console.log(err);
+					response.code = 999;
+					status = 500;
+					callback(true);
+				}
+				else
+				{
+					user = retData;
+					callback();
+				}
+			});
+		},
+		function(callback)
+		{
 			if(body.namespace)
 			{
-				User
-				.findOne({
-					namespace : body.namespace
-				})
-				.exec(function(err, retData)
-				{
-					if(retData != null)
-					{
-						type = 0;
-						response.code = 4;
-						status = 409;
-						callback(true);
-					}
-					else
-					{
-						callback();
-					}
-				});
+				user.namespace.push(body.namespace);
+
+				callback();
 			}
+			else
+			{
+				response.code = 400;
+				status = 2;
+				callback(true);
+			}
+		},
+		function(callback)
+		{
+			User
+			.findOne({ namespace : body.namespace })
+			.exec(function(err, retData)
+			{
+				if(retData != null)
+				{
+					type = 0;
+					response.code = 4;
+					status = 409;
+					callback(true);
+				}
+				else
+				{
+					callback();
+				}
+			});
 		},
 		function(callback)
 		{
