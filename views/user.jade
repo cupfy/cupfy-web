@@ -45,8 +45,10 @@ html
 						td Model
 						td Status
 					tbody
+						-var shown = 0
 						-for(var i in devices)
 							-if(!devices[i].removed)
+								-shown++
 								tr
 									td=i
 									td=devices[i].name
@@ -62,7 +64,7 @@ html
 										td
 											form(action="/device/"+devices[i]._id+"/approve?html=true", method="post")
 												button Approve
-				-if(devices.length == 0)
+				-if(shown == 0)
 					p.center This namespace doesn't have any device registered yet.
 
 				hr
