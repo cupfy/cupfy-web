@@ -528,6 +528,7 @@ exports.approve = function(req, res)
  *
  * @param body.title The push title.
  * @param body.message The push message.
+ * @param body.namespace The push namespace.
  * @param body.apiSecret The push apiSecret.
  */
 exports.push = function(req, res)
@@ -546,6 +547,7 @@ exports.push = function(req, res)
 		{
 			if(body.title === undefined
 			|| body.message === undefined
+			|| body.namespace === undefined
 			|| body.apiSecret === undefined)
 			{
 				response.code = 2;
@@ -560,7 +562,10 @@ exports.push = function(req, res)
 		function(callback)
 		{
 			User
-			.findOne({ apiSecret : body.apiSecret })
+			.findOne({
+				apiSecret : body.apiSecret,
+				namespace : body.namespace
+			})
 			.lean()
 			.exec(function(err, retData)
 			{
@@ -581,7 +586,7 @@ exports.push = function(req, res)
 		{
 			Hook
 			.find({
-				namespace : user.namespace,
+				namespace : body.namespace,
 				approved : true,
 				removed : false
 			})
@@ -598,7 +603,7 @@ exports.push = function(req, res)
 					var json = {
 						title : body.title,
 						message : body.message,
-						namespace : user.namespace
+						namespace : body.namespace
 					}
 
 					var android = [];
