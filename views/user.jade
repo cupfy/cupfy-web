@@ -54,8 +54,10 @@ html
 									td=devices[i].name
 									-if(devices[i].type == 0)
 										td=devices[i].model + " (Android)"
-									-else
+									-else if(devices[i].type == 1)
 										td=devices[i].model + " (iOS)"
+									-else if(devices[i].type == 2)
+										td=devices[i].model + " (Windows Phone)"
 									-if(devices[i].approved)
 										td
 											form(action="/device/"+devices[i]._id+"/remove?html=true", method="post")
