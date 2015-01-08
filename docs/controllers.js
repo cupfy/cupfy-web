@@ -5,28 +5,24 @@ controllers.push({
     show: "Device",
     routes: [
         {
-            routeName: "/",
+            routeName: "/:deviceId",
             method: "GET",
             requiresAuth: true,
             params: [
                 [],
-                ["deviceId"],
-                ["deviceId"],
+                [],
             ],
             headers: [
                 [],
                 [],
-                [],
             ],
             returns: [
-                [400, "error", "{ \"code\" : 100 }"],
                 [404, "error", "{ \"code\" : 10 }"],
                 [200, "success", "Mixed"]
             ],
             description: "Will try to recover the <a href=\"#\" data-trigger=\"device-model\">Device</a> and its <a href=\"#\" data-trigger=\"hook-model\">Hooks</a>.</p>",
             example: [
-                '[GET] URL /device',
-                'PARAMETERS { "deviceId" : "1JSANf1849" }',
+                '[GET] URL /device/1JSANf1849',
                 'HEADERS',
                 'STATUS 200 OK',
                 {
