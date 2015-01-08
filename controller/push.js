@@ -1,5 +1,6 @@
 var gcm = require('node-gcm');
 var apn = require('apn');
+var mpns = require('mpns');
 var constants = require('../config/constants.js');
 
 /*
@@ -14,24 +15,34 @@ var apnConnection = new apn.Connection(options);
  */
 var sender = new gcm.Sender(constants.getGcmApiSecret());
 
-exports.send = function(json, android, ios, callback)
+/*
+ * CONSTANTS
+ * TODO: change this bullshit
+ */
+var model = {
+	ANDROID: 0,
+	IOS: 1,
+	WP: 2
+}
+
+exports.send = function(json, device, callback)
 {
 	/*
 	 * GCM
 	 */
-	if(android.length > 0)
+	if(device.android.length > 0)
 	{
 		var message = new gcm.Message();
 
 		message.addDataWithObject(json);
 
-		sender.send(message, android, 4, function (err, result) { console.log(err); });
+		sender.send(message, device.android, 4, function (err, result) { console.log(err); });
 	}
 	
 	/*
 	 * APN
 	 */
-	if(ios.length > 0)
+	if(device.ios.length > 0)
 	{
 		var note = new apn.Notification();
 
@@ -39,7 +50,18 @@ exports.send = function(json, android, ios, callback)
 		note.badge = 1;
 		note.alert = json.title + ": " + json.message;
 
-		apnConnection.pushNotification(note, ios);
+		apnConnection.pushNotification(note, device.ios);
+	}
+
+	/*
+	 * MPN
+	 */
+	if(device.wp.length > 0)
+	{
+		device.wp.map(function(wp)
+		{
+			mpns.sendToast(wp, json.title, json.message);
+		});
 	}
 
 	callback();

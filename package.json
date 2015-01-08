@@ -15,6 +15,7 @@
 		"body-parser": "latest",
 		"morgan": "1.4.x",
 		"moment": "2.x",
-		"connect-flash": "0.1.x"
+		"connect-flash": "0.1.x",
+		"mpns": "2.0.x"
 	}
 }

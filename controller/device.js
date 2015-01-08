@@ -288,6 +288,100 @@ exports.new = function(req, res)
 }
 
 /**
+ * Edit a Device.
+ *
+ * @param body.oldPushId The device pushId.
+ * @param body.newPushId The device pushId.
+ *
+ * @return Device The JSON representation of the device.
+ */
+exports.edit = function(req, res)
+{
+	var id = req.params.id;
+
+	var body = req.body;
+
+	var response = {};
+	var status = 200;
+
+	var device;
+	
+	async.series([
+
+		function(callback)
+		{
+			if(id === undefined
+			|| body.oldPushId === undefined
+			|| body.newPushId === undefined)
+			{
+				response.code = 2;
+				status = 400;
+				callback(true);
+			}
+			else
+			{
+				callback();
+			}
+		},
+		function(callback)
+		{
+			Device
+			.findOne({
+				_id : id,
+				pushId : body.oldPushId
+			})
+			.exec(function(err, retData)
+			{
+				if(retData == null)
+				{
+					response.code = 10;
+					status = 404;
+					callback(true);
+				}
+				else
+				{
+					device = retData;
+
+					callback();
+				}
+			});
+		},
+		function(callback)
+		{
+			device.pushId = body.newPushId;
+
+			device.save(function(err, retData)
+			{
+				if(err)
+				{
+					console.log(err);
+					response.code = 999;
+					status = 500;
+					callback(true);
+				}
+				else
+				{
+					callback();
+				}
+			});
+		}
+	], function(invalid)
+	{
+		if(!invalid)
+			response = device;
+
+		if(status != 200)
+		{
+			general.errorHandler(res, response.code, status);
+		}
+		else
+		{
+			res.status(status).send(response);
+		}
+	});
+}
+
+/**
  * Hook a Device.
  *
  * @param body.pushId The device pushId.
@@ -606,22 +700,28 @@ exports.push = function(req, res)
 						namespace : body.namespace
 					}
 
-					var android = [];
-					var ios = [];
+					var devices = {}
+					devices.android = [];
+					devices.ios = [];
+					devices.wp = [];
 
 					retData.map(function(hook)
 					{
 						if(hook.device.type == 0)
 						{
-							android.push(hook.device.pushId);
+							devices.android.push(hook.device.pushId);
 						}
-						else
+						else if(hook.device.type == 1)
 						{
-							ios.push(hook.device.pushId);
+							devices.ios.push(hook.device.pushId);
+						}
+						else if(hook.device.type == 2)
+						{
+							devices.wp.push(hook.device.pushId);
 						}
 					});
 
-					push.send(json, android, ios, callback);
+					push.send(json, devices, callback);
 				}
 			});
 		}
