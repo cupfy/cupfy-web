@@ -1,6 +1,9 @@
 var async = require('async')
 	, moment = require('moment')
 	, crypto = require('crypto')
+    , errors = require('../docs/errors.js')
+    , controllers = require('../docs/controllers.js')
+    , models = require('../docs/models.js')
 	, general = require('../config/general.js')
 	, userModel = require('../model/user.js')
 	, deviceModel = require('../model/device.js');
@@ -56,6 +59,20 @@ exports.docs = function(req, res)
 	}
 
 	res.render('docs', params);
+}
+
+/**
+ * Get the api page.
+ */
+exports.api = function(req, res)
+{
+    res.render('api',
+    {
+        controllers : controllers.getControllers(),
+        models : models.getModels(),
+        errors : errors.getErrors(),
+        findError : errors.getError
+    });
 }
 
 /**

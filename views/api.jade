@@ -1,0 +1,189 @@
+doctype html
+html
+	head
+		title AppHooks API
+		meta(charset='utf-8')
+		meta(http-equiv="X-UA-Compatible", content="IE=edge")
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		link(rel='stylesheet', href='/css/bootstrap.min.css')
+		link(rel='stylesheet', href='/css/override.css')
+	body
+		.navbar.navbar-inverse.navbar-fixed-top
+			.navbar-inner
+				.container-fluid
+					a.brand(href='./') AppHooks
+		.container
+			.row
+				.span3.nav-fixed
+					ul.nav.nav-pills.nav-stacked
+						-for(var i in controllers)
+							li.nav-header=controllers[i].show + " Controller"
+
+							-for(var j in controllers[i].routes)
+								li(data-trigger=controllers[i].name+'-'+controllers[i].routes[j].method+'-'+controllers[i].routes[j].routeName.replace(/\//g, '-').replace(/:/g, '-'))
+									a(href='#')
+										i.icon-chevron-right
+										='['+ controllers[i].routes[j].method +'] '+'/' + controllers[i].name + controllers[i].routes[j].routeName
+
+						li.nav-header Models
+						-for(var i in models)
+							li(data-trigger=models[i].name+'-model')
+								a(href='#')
+									i.icon-chevron-right
+									=models[i].show
+
+						li.nav-header Miscellaneous
+						li(data-trigger='errors-section')
+							a(href='#')
+								i.icon-chevron-right
+								| Error codes
+
+				.span3
+				.span9
+					.hero-unit
+						h2 Documentation
+						p Here you will find all necessary documentation for our app API.
+						p
+							b FAQ
+						ul
+							li Don't know what status 204 means?
+								ul
+									li If you receive a status 204 with body <code>{}</code>, it means that there is no occurrency for that day.
+							li How should I use timestamp?
+								ul
+									li Always work with Unix timestamp!
+									li In case of timezone, use the following pattern: <code>+0000</code> (for Lincoln, NE - US: <code>-0600</code>).
+
+					h1 Controllers
+					-for(var i in controllers)
+						section
+							article.infos
+								h2= controllers[i].show+" controller"
+								p= "Here you will manipulate all "+controllers[i].name+"s info that you need."
+								p!= "Every access will follow <code>/"+controllers[i].name+"</code> URL."
+							
+							article.methods
+								h4 Methods
+								-for(var j in controllers[i].routes)
+									div(id=controllers[i].name+'-'+controllers[i].routes[j].method+'-'+controllers[i].routes[j].routeName.replace(/\//g, '-').replace(/:/g, '-'))
+										p
+											code.supper.blue= '['+controllers[i].routes[j].method+']'
+											code.supper= controllers[i].routes[j].routeName
+										p!= controllers[i].routes[j].description
+
+										table.table.table-bordered.table-stripped
+											thead
+												td Parameters
+												td Headers
+												td Status code
+												td Return
+											tbody
+												-for(var k in controllers[i].routes[j].params)
+													tr(class=controllers[i].routes[j].returns[k][1])
+														td
+															-for(var l in controllers[i].routes[j].params[k])
+																code.normal= controllers[i].routes[j].params[k][l]
+
+														td
+															-for(var l in controllers[i].routes[j].headers[k])
+																code.normal= controllers[i].routes[j].headers[k][l]
+
+														td
+															case controllers[i].routes[j].returns[k][0]
+																when 400
+																	| 400 Bad Request
+																when 401
+																	| 401 Unauthorized
+																when 403
+																	| 403 Forbidden
+																when 404
+																	| 404 Not Found
+																when 409
+																	| 409 Conflict
+																when 422
+																	| 422 Unprocessable Entity
+																when 304
+																	| 304 Not Modified
+																when 204
+																	| 204 No Content
+																when 201
+																	-if(controllers[i].routes[j].method == "DELETE")
+																		| 201 Removed
+																	-else
+																		| 201 Created
+																when 200
+																	| 200 OK
+
+														td
+															-var acceptedStatuses = [200, 201, 204];
+															-if(acceptedStatuses.indexOf(controllers[i].routes[j].returns[k][0]) == -1)
+																code.normal.ctooltip(title=findError(JSON.parse(controllers[i].routes[j].returns[k][2]).code).description)
+																	span!= controllers[i].routes[j].returns[k][2]
+															-else
+																code.normal!= controllers[i].routes[j].returns[k][2]
+										if(controllers[i].routes[j].example.length > 0)
+											h5 Example
+											.blockcode
+												-for(var k in controllers[i].routes[j].example)
+													-if(typeof controllers[i].routes[j].example[k] == "object")
+														p
+															pre= JSON.stringify(controllers[i].routes[j].example[k], undefined, 4)
+													-else
+														p= controllers[i].routes[j].example[k]
+									hr
+					h1 Models
+					-for(var i in models)
+						section(id=models[i].name+"-model")
+							article
+								h2= models[i].show+" model"
+								p Here you will see it's schema.
+								table.table.table-bordered.table-stripped
+									thead 
+										td Parameter
+										td Type
+										td Description
+									tbody
+										-for(var j in models[i].content)
+											tr 
+												td
+													code.normal= models[i].content[j][0]
+												td
+													span.type
+														case models[i].content[j][1]
+															when "String"
+																| String
+															when "Number"
+																| Number
+															when "Boolean"
+																| Boolean
+															when "Array"
+																| Array
+															when "JSON"
+																| JSON
+															default
+																a(href="#", data-trigger=models[i].content[j][1].charAt(0).toLowerCase() + models[i].content[j][1].slice(1)+"-model")
+																	=models[i].content[j][1]
+												td=models[i].content[j][2]
+								h5 Example
+								pre= JSON.stringify(models[i].example[0], undefined, 4)
+						hr
+
+					h1 Miscellaneous
+					section#errors-section
+						article
+							h2 Error codes
+							p Here you will see all error codes and its description.
+							table.table.table-bordered.table-stripped
+								thead 
+									td #
+									td Description
+								tbody
+									-for(var i in errors)
+										tr 
+											td= errors[i].code
+											td= errors[i].description
+						hr
+
+	script(src="//code.jquery.com/jquery-1.10.2.min.js")
+	script(src="/js/bootstrap.min.js")
+	script(src="/js/override.js")

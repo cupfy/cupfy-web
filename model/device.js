@@ -5,6 +5,7 @@ var DeviceSchema = mongoose.Schema({
 	name: String,
 	model: String,
 	type: Number,
+	deviceId: String,
 	pushId: String
 });
 
