@@ -1,29 +1,17 @@
 var gcm = require('node-gcm');
 var apn = require('apn');
-var mpns = require('mpns');
-var constants = require('../config/constants.js');
+var mpns = require('../util/mpns');
+var constants = require('../config/constants.js').get();
 
 /*
  * APN
  */
-var options = constants.getApnOptions();
-
-var apnConnection = new apn.Connection(options);
+var apnSender = new apn.Connection(constants.PUSH.APN.OPTIONS);
 
 /*
  * GCM
  */
-var sender = new gcm.Sender(constants.getGcmApiSecret());
-
-/*
- * CONSTANTS
- * TODO: change this bullshit
- */
-var model = {
-	ANDROID: 0,
-	IOS: 1,
-	WP: 2
-}
+var gcmSender = new gcm.Sender(constants.PUSH.GCM.SECRET);
 
 exports.send = function(json, device, callback)
 {
@@ -58,10 +46,7 @@ exports.send = function(json, device, callback)
 	 */
 	if(device.wp.length > 0)
 	{
-		device.wp.map(function(wp)
-		{
-			mpns.sendToast(wp, json.title, json.message);
-		});
+		mpns.send(json, wp);
 	}
 
 	callback();

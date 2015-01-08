@@ -1,28 +1,27 @@
 
-var appName = 'app-hooks';
-var gcmApiSecret = '';
-var apnOptions = {
-	cert: '/path/to/cert',
-	key: '/path/to/key',
-	passphrase: ''
-};
-
-exports.getPort = function()
-{
-	return 3000;
+var constants = {
+	APP: {
+		APP_NAME: 'app-hooks',
+		MONGO_URI: 'mongodb://localhost/' + constants.APP.APP_NAME,
+		PORT: 3000
+	},
+	PUSH: {
+		GCM: {
+			SECRET: 'secret_here'
+		},
+		APN: {
+			CERT: '/path/to/cert',
+			KEY: '/path/to/key',
+			PASSPHRASE: 'passphrase_here'
+		},
+		MPN: {
+			CLIENT_ID: 'client_id here',
+			CLIENT_SECRET: 'client_secret here'
+		}
+	}
 }
 
-exports.getDbUri = function()
+exports.get = function()
 {
-	return 'mongodb://localhost/' + appName;
-}
-
-exports.getGcmApiSecret = function()
-{
-	return gcmApiSecret;
-}
-
-exports.getApnOptions = function()
-{
-	return apnOptions;
+	return constants;
 }

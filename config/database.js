@@ -1,9 +1,9 @@
-var constants = require('./constants.js')
+var constants = require('./constants.js').get()
 	, mongoose = require('mongoose');
 
 var mongoUri = process.env.MONGOLAB_URI ||
 	process.env.MONGOHQ_URL ||
-	constants.getDbUri();
+	constants.APP.MONGO_URI;
 
 /**
  * Initializes the mongoose instance and...

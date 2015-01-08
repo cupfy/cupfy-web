@@ -2,7 +2,7 @@ var errors = require('../docs/errors.js')
 	, session = require('express-session')
 	, database = require('./database.js')
 	, routes = require('./routes.js')
-	, constants = require('./constants.js')
+	, constants = require('./constants.js').get()
 	, userModel = require('../model/user.js')
 	, bodyParser = require('body-parser')
 	, moment = require('moment')
@@ -78,7 +78,7 @@ exports.configure = function(app, express)
  */
 exports.run = function(app)
 {
-	var port = constants.getPort();
+	var port = constants.APP.PORT;
 	
 	app.listen(port, '0.0.0.0');
 	console.log('Listening on port ' +port+ '...');
