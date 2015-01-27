@@ -46,7 +46,7 @@ exports.send = function(json, device, callback)
 	 */
 	if(device.wp.length > 0)
 	{
-		mpns.send(json, wp);
+		mpns.send(json, device.wp);
 	}
 
 	callback();
