@@ -24,7 +24,7 @@ exports.send = function(json, device, callback)
 
 		message.addDataWithObject(json);
 
-		sender.send(message, device.android, 4, function (err, result) { console.log(err); });
+		gcmSender.send(message, device.android, 4, function (err, result) { console.log(err); });
 	}
 	
 	/*
@@ -38,7 +38,7 @@ exports.send = function(json, device, callback)
 		note.badge = 1;
 		note.alert = json.title + ": " + json.message;
 
-		apnConnection.pushNotification(note, device.ios);
+		apnSender.pushNotification(note, device.ios);
 	}
 
 	/*
