@@ -1,8 +1,7 @@
 doctype html
 html
 	head
-		title App Hooks
-		link(rel="stylesheet", href="/css/app-hooks.css")
+		include ./includes/head.jade
 
 	body
 		section.modal.namespace
@@ -85,17 +84,14 @@ html
 					p.question
 						| How do I register a device?
 					p.answer
-						| You need to download the <a href="#">App Hooks application</a> on your device and add your namespace to receive the push notifications.
+						| You need to download the <a href="#">cupfy application</a> on your device and add your namespace to receive the push notifications.
 
 					p.question
 						| How do I get another namespace?
 					p.answer
-						| If you are interested in obtaining another namespace please contact us at <a href="mailto:hello@grupotrilha.com.br">hello@grupotrilha.com.br</a>
+						| If you are interested in obtaining another namespace please contact us at <a href="mailto:hello@cupfy.com">hello@cupfy.com</a>
 
-		footer
-			p Made with &#9829; by <a href="https://grupotrilha.com.br" target="_blank">Trilha</a>
-
-	script(src="/js/jquery-1.11.1.min.js")
+		include ./includes/footer.jade
 	script(src="/js/page-user.js")
 
 	-if(user.namespace.length == 0)

@@ -1,8 +1,7 @@
 doctype html
 html
 	head
-		title App Hooks
-		link(rel="stylesheet", href="/css/app-hooks.css")
+		include ./includes/head.jade
 
 	body
 		section.modal.access
@@ -23,7 +22,7 @@ html
 			button.access Login or Register
 			a.button(href="/")
 				.brand
-			.title App Hooks
+			.title cupfy
 			.message Send notifications to all registered devices
 				br
 				| with one request
@@ -43,13 +42,11 @@ html
 			hr
 			.available-devices
 				h1 Available devices
-				p We currently only support <a href="#">Android</a>
-				p It'll be available soon for iOS, Windows Phone, Firefox OS, OSx, Windows, Facebook and any other platform you could imagine.
-	
-		footer
-			p Made with &#9829; by <a href="https://grupotrilha.com.br" target="_blank">Trilha</a>
-	
-	script(src="/js/jquery-1.11.1.min.js")
+				p We currently only support <a href="#">Android</a> and <a href="#">Windows Phone</a>
+				p It'll be available soon for iOS, Firefox OS, OSx, Windows, Facebook and any other platform you could imagine.
+		
+		include ./includes/footer.jade
+
 	script(src="/js/page-index.js")
 
 	-if(message)
